@@ -1,0 +1,29 @@
+vhost0:
+  name: test
+  state: present
+  tracing: no
+  rabbitmq_users:
+    - user: admin
+      password: admin
+      vhost: vhost0
+      tags:
+        - administrator
+    - user: fadmin
+      password: fadmin
+      vhost: vhost0
+      tags:
+        - administrator
+    - user: test
+      password: test
+      vhost: vhost0
+    - user: guest
+      state: absent # remove guest user
+  rabbitmq_policies:
+    - name: "ha-policy"
+      vhost: "vhost0" # Optional, defaults to "/"
+      pattern: ".*" # Optional, defaults to ".*"
+      tags: # Optional, defaults to "{}"
+        ha-mode: all
+        ha-sync-mode: automatic
+      state: present
+
