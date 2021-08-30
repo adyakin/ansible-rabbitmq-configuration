@@ -3,7 +3,7 @@
 - name: Add RabbitMQ vhosts
   rabbitmq_vhost:
     name: '{{ vhosts[item].name }}'
-    node: '{{ rabbit_cluster_name }}@{{ ansible_hostname }}'
+    node: 'rabbit@{{ ansible_hostname }}'
     state: '{{ vhosts[item].state | default("present") }}'
     tracing: '{{ vhosts[item].tracing | default("no") }}'
   with_items: '{{ vhosts }}'

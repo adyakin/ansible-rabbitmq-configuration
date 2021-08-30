@@ -5,7 +5,7 @@
     user: '{{ item.1.user }}'
     password: '{{ item.1.password | default("") }}'
     vhost: '{{ item.1.vhost | default("/") }}'
-    node: '{{ rabbitmq_cluster_name }}@{{ ansible_hostname }}'
+    node: 'rabbit@{{ ansible_hostname }}'
     tags: '{{ (item.1.tags | default("")) | join(",") }}'
     configure_priv: '{{ item.1.configure_priv | default(".*") }}'
     read_priv: '{{ item.1.read_priv | default(".*") }}'
