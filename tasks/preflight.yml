@@ -15,5 +15,5 @@
 
 - name: preflight | show vhosts config
   debug:
-    msg: " vhost={{ item }}, users = {{ vhosts[item]['rabbitmq_users'] }}, policies={{ vhost[item]['rabbitmq_policies'] }} "
+    msg: " vhost={{ item }}, users = {{ vhosts[item]['rabbitmq_users'] }}, policies={{ vhosts[item]['rabbitmq_policies'] }} "
   with_items: "{{ vhosts }}"
