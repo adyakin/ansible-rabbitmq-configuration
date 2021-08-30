@@ -1,0 +1,38 @@
+---
+
+- name: pre-flight check
+  include: preflight.yml
+
+- include: packages_redhat.yml
+  when: ansible_os_family == 'RedHat'
+
+- include: packages_debian.yml
+  when: ansible_os_family == 'Debian'
+
+- include: ssl.yml
+  when: rabbitmq_ssl
+
+- include: configuration.yml
+
+- include: services.yml
+
+- meta: flush_handlers
+
+- name: checking if clustered
+  stat:
+    path: /etc/rabbitmq/clustered
+  register: clustered
+  when: rabbitmq_cluster is defined and rabbitmq_cluster
+
+- include: cluster.yml
+  when: >
+    rabbitmq_cluster is defined
+    and rabbitmq_cluster
+    and not clustered['stat']['exists']
+
+- include: plugins.yml
+- include: vhost.yml
+- include: user.yml
+- include: policy.yml
+
+# - include: sanitycheck.yml

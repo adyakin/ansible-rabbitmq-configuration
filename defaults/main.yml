@@ -1,0 +1,42 @@
+---
+
+gpg_keys:
+  - "https://github.com/rabbitmq/signing-keys/releases/download/2.0/rabbitmq-release-signing-key.asc"
+  - "https://packagecloud.io/rabbitmq/erlang/gpgkey"
+  - "https://packagecloud.io/rabbitmq/rabbitmq-server/gpgkey"
+
+rabbitmq_erlang_cookie_file: '/var/lib/rabbitmq/.erlang.cookie'
+
+# basic configuration
+rabbitmq_vm_watermark_relative: '0.4'
+rabbitmq_disk_free_limit_absolute: '500MB'
+rabbitmq_log_level: 'info'
+
+# Plugins to enabled
+rabbitmq_plugins: []
+
+# VHOST
+rabbitmq_vhosts: []
+rabbitmq_users: []
+rabbitmq_policies: []
+
+# cluster name
+rabbitmq_cluster_name: 'rabbit'
+
+# rabbitmq TCP configuration
+rabbitmq_tcp_address: ''
+rabbitmq_tcp_port: 5672
+rabbitmq_cluster: False
+rabbitmq_erlang_cookie: 'THISISACOOKIEMONSTER2'
+
+# rabbitmq SSL configuration
+# amqp/ssl
+rabbitmq_ssl: no
+rabbitmq_ssl_dir: "/etc/rabbitmq/ssl"
+rabbitmq_ssl_cacert_path: "/etc/rabbitmq/ssl/ca.crt"
+rabbitmq_ssl_cert_path: "/etc/rabbitmq/ssl/server.crt"
+rabbitmq_ssl_key_path: "/etc/rabbitmq/ssl/server.key"
+rabbitmq_ssl_verify_peer: no
+
+# use SSL for inter-node communications
+rabbitmq_ssl_cluster: no
