@@ -4,7 +4,7 @@
   rabbitmq_policy:
     name: '{{ item.1.name }}'
     pattern: '{{ item.1.pattern | default(".*") }}'
-    vhost: '{{ item.1.vhost | default("/") }}'
+    vhost: '{{ item.0.name | default("/") }}'
     state: '{{ item.1.state | default("present") }}'
     tags: '{{ item.1.tags | default({}) }}'
     node: 'rabbit@{{ ansible_hostname }}'
