@@ -2,10 +2,12 @@
 
 - name: Manage RabbitMQ policies
   rabbitmq_policy:
-    name: '{{ item.name }}'
-    pattern: '{{ item.pattern | default(".*") }}'
-    vhost: '{{ item.vhost | default("/") }}'
-    state: '{{ item.state | default("present") }}'
-    tags: '{{ item.tags | default({}) }}'
-    node: 'rabbit@{{ ansible_hostname }}'
-  with_items: '{{ rabbitmq_policies }}'
+    name: '{{ item.1.name }}'
+    pattern: '{{ item.1.pattern | default(".*") }}'
+    vhost: '{{ item.1.vhost | default("/") }}'
+    state: '{{ item.1.state | default("present") }}'
+    tags: '{{ item.1.tags | default({}) }}'
+    node: '{{ rabbitmq_cluster_name }}@{{ ansible_hostname }}'
+  with_subelements:
+    - "{{ vhosts }}"
+    - rabbitmq_policies

@@ -2,17 +2,16 @@
 
 - name: Manage RabbitMQ users and privileges
   rabbitmq_user:
-    user: '{{ item.user }}'
-    password: '{{ item.password | default("") }}'
-    vhost: '{{ item.vhost | default("/") }}'
-    node: 'rabbit@{{ ansible_hostname }}'
-    tags: '{{ (item.tags | default("")) | join(",") }}'
-    configure_priv: '{{ item.configure_priv | default(".*") }}'
-    read_priv: '{{ item.read_priv | default(".*") }}'
-    write_priv: '{{ item.write_priv | default(".*") }}'
-    state: '{{ item.state | default("present") }}'
-    force: '{{ item.force | default("no") }}'
-  with_items: '{{ rabbitmq_users }}'
-  when: rabbitmq_cluster is defined
-        and rabbitmq_cluster
-        and inventory_hostname == play_hosts[0]
+    user: '{{ item.1.user }}'
+    password: '{{ item.1.password | default("") }}'
+    vhost: '{{ item.1.vhost | default("/") }}'
+    node: '{{ rabbitmq_cluster_name }}@{{ ansible_hostname }}'
+    tags: '{{ (item.1.tags | default("")) | join(",") }}'
+    configure_priv: '{{ item.1.configure_priv | default(".*") }}'
+    read_priv: '{{ item.1.read_priv | default(".*") }}'
+    write_priv: '{{ item.1.write_priv | default(".*") }}'
+    state: '{{ item.1.state | default("present") }}'
+    force: '{{ item.1.force | default("no") }}'
+  with_subelements:
+    - "{{ vhosts }}"
+    - rabbitmq_users

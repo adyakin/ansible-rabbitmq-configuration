@@ -1,0 +1,19 @@
+---
+
+- name: prefligth | check variables
+  fail:
+    msg: "rabbitmq_cluster_name variable is required."
+  when: rabbitmq_cluster_name is not defined
+
+- name: preflight | load vhosts configuration
+  include_vars:
+    dir: "vars/vhost/"
+    name: vhosts
+    extensions:
+      - 'yaml'
+      - 'yml'
+
+- name: preflight | show vhosts config
+  debug:
+    msg: " vhost={{ item }}, users = {{ vhosts[item]['rabbitmq_users'] }}, policies={{ vhost[item]['rabbitmq_policies'] }} "
+  with_items: "{{ vhosts }}"
