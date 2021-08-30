@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          path: molecule_demo
+          path: role
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -23,5 +23,5 @@ jobs:
           python3 -m pip install ansible yamllint molecule
       - name: Test with molecule
         run: |
-          find .
+          cd role
           molecule test
