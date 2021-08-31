@@ -11,10 +11,15 @@ Host Variables
 | :------  | :-----:  | :-----: | :---------- |
 | `rabbitmq_cluster_name` | - | - | имя кластера |
 | `rabbitmq_external_endpoint` | - | - | внешний адрес кластера (например за haproxy). Используется при настройке федерации.
+| `rabbitmq_federation` | X | `no` | настраивать ли федерацию между хостами. Если влючено, то обязательно указание `rabbitmq_external_endpoint` |
 
 Непосредственно конфигурация для каждого vhost загружается динамически из `vars/vhost/*.yml`
 
 Формат файла конфигурации:
+
+> Корневым елементом обязательно должно быть уникальное имя, в противном случае
+> переменные затрут уже существующую конфигурацию
+
 
 ```yaml
 vhost-name:
@@ -63,32 +68,26 @@ Example Playbook
 Для использования с тем же инвентарем, что и для `ansible-rabbitmq` необходимо добавить создание новой группы - по одному хосту из каждого кластера.
 
 ```yaml
+---
+
 - name: gather facts
   hosts: all
   tasks:
 
-  - setup:
-
   - name: get cluster name
-    command: "rabbitmqctl cluster_status | grep -q 'Cluster Name' | awk '{print \"$NF\"}'"
+    command: "rabbitmqctl cluster_status --formatter json"
+    changed_when: false
     register: status_cmd
 
   - name: set cluster name variable
     set_fact:
-      cluster_name: "{{ status_cmd.stdout }}"
+      cluster_name: "{{ status_cmd.stdout | from_json | json_query('cluster_name') }}"
     when: not status_cmd.failed
 
   - name: show cluster name
     debug:
-      msg: "cluster_name = {{ cluster_name }}"
+      msg: "host = {{ ansible_inventory_hostname }}, cluster_name = {{ cluster_name }}"
 
-  - name: fail if discovered cluster name is different from inventory defined
-    fail:
-      msg: >
-        "Inconsistent cluster state: inventory defined name 
-        '{{ rabbitmq_cluster_name }}', discovered - '{{ cluster_name}}'"
-    when: >
-      cluster_name != rabbitmq_cluster_name
 
 # собираем новую группу хостов в которой будет по одному хосту из каждого кластера
 - name: prepare host group
@@ -102,22 +101,22 @@ Example Playbook
   # проходим по всех хостам и добавляем в новый dict {cluster_name: hostname}
   # в случае дублирования ключа значение заменяется, в результате чего получаем
   # словарь с уникальными хостами для каждого кластера
-  - name: set temporary host group
-    set_fact:
-      tmp_hosts: "{{ tmp_hosts|default({}) | combine( {hostvars[item].cluster_name : item} ) }}"
-    with_items: "{{ groups.all }}"
+    - name: set temporary host group
+      set_fact:
+        tmp_hosts: "{{ tmp_hosts|default({}) | combine( {hostvars[item].cluster_name : item} ) }}"
+      with_items: "{{ groups.all }}"
 
-  - name: add hosts to group
-    add_host:
-      group: tmp_masters
-      hostname: "{{ item.value }}"
-    loop: "{{ tmp_hosts|dict2items }}"
+    - name: add hosts to group
+      add_host:
+        group: tmp_masters
+        hostname: "{{ item.value }}"
+      loop: "{{ tmp_hosts|dict2items }}"
 
-  - name: show tmp_masters group hosts
-    debug:
-      msg: "host = {{ item }}"
-    with_inventory_hostnames:
-      - tmp_masters
+    - name: show tmp_masters group hosts
+      debug:
+        msg: "host = {{ item }}"
+      with_inventory_hostnames:
+        - tmp_masters
 
 # настраиваем конфигурацию юзеров/хостов/политики на каждом кластере
 - name: configure clusters

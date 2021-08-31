@@ -5,26 +5,19 @@
   tasks:
 
   - name: get cluster name
-    command: "rabbitmqctl cluster_status | grep -q 'Cluster Name' | awk '{print \"$NF\"}'"
+    command: "rabbitmqctl cluster_status --formatter json"
     changed_when: false
     register: status_cmd
 
   - name: set cluster name variable
     set_fact:
-      cluster_name: "{{ status_cmd.stdout }}"
+      cluster_name: "{{ status_cmd.stdout | from_json | json_query('cluster_name') }}"
     when: not status_cmd.failed
 
   - name: show cluster name
     debug:
-      msg: "cluster_name = {{ cluster_name }}"
+      msg: "host = {{ ansible_inventory_hostname }}, cluster_name = {{ cluster_name }}"
 
-  - name: fail if discovered cluster name is different from inventory defined
-    fail:
-      msg: >
-        "Inconsistent cluster state: inventory defined name
-        '{{ rabbitmq_cluster_name }}', discovered - '{{ cluster_name }}'"
-    when: >
-      cluster_name != rabbitmq_cluster_name
 
 # собираем новую группу хостов в которой будет по одному хосту из каждого кластера
 - name: prepare host group

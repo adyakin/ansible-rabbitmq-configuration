@@ -20,6 +20,9 @@ rabbitmq_vhosts: []
 rabbitmq_users: []
 rabbitmq_policies: []
 
+# enable federation
+rabbitmq_enable_federation: no
+
 # cluster name
 rabbitmq_cluster_name: 'rabbit'
 
