@@ -55,18 +55,6 @@
       with_inventory_hostnames:
         - tmp_masters
 
-- name: set masters hosts vars
-  hosts: masters
-  become: false
-
-  tasks:
-
-    - name: copy host vars
-      set_fact:
-        rabbitmq_cluster_name: "{{ hostvars[item].rabbitmq_cluster_name }}"
-      with_items: "{{ groups.all }}"
-
-
 # настраиваем конфигурацию юзеров/хостов/политики на каждом кластере
 - name: configure clusters
   hosts: tmp_masters
