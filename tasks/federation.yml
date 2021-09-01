@@ -2,8 +2,9 @@
 
 - name: set target upstreams
   set_fact:
-    tmp_upstream_hosts: "{{ tmp_upstream_hosts|default({}) | combine({ hostvars[item].cluster_name : hostvars[hostvars[item].cluster_name].external_endpoint }) }}"
-  with_items: "{{ groups.all }}"
+    tmp_upstream_hosts: "{{ tmp_upstream_hosts|default({}) | combine({ hostvars[item].cluster_name : hostvars[item][ hostvars[item].cluster_name ].external_endpoint }) }}"
+  with_inventory_hostnames:
+    - tmp_masters
   when: >
     hostvars[item].cluster_name != cluster_name
 
@@ -41,8 +42,8 @@
 - name: create federation upstream
   rabbitmq_parameter:
     component: federation-upstream
-    name: "{{ vhosts[item.0].name }}-to-{{ tmp_upstream_hosts[item.1] }}"
-    vhost: "{{ vhosts[item.0].name }}"
-    value: "{{ upstreams[item.1] | to_json }}"
+    name: "{{ item.vhost }}-to-{{ tmp_upstream_hosts[item.to] }}"
+    vhost: "{{ item.vhost }}"
+    value: "{{ item.params | to_json }}"
     node: "rabbit@{{ ansible_hostname }}"
-  with_items: "{{ upstreams }}"
+  with_items: "{{ upstreams | default({}) }}"
