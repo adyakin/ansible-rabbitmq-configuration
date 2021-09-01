@@ -42,8 +42,9 @@
 - name: create federation upstream
   rabbitmq_parameter:
     component: federation-upstream
-    name: "{{ item.vhost }}-to-{{ tmp_upstream_hosts[item.to] }}"
+    name: "{{ item.vhost }}-to-{{ item.to }}"
     vhost: "{{ item.vhost }}"
     value: "{{ item.params | to_json }}"
     node: "rabbit@{{ ansible_hostname }}"
+    state: present
   with_items: "{{ upstreams | default({}) }}"
