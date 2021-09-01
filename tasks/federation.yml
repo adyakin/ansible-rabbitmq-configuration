@@ -1,0 +1,48 @@
+---
+
+- name: set target upstreams
+  set_fact:
+    tmp_upstream_hosts: "{{ tmp_upstream_hosts|default({}) | combine({ hostvars[item].cluster_name : hostvars[hostvars[item].cluster_name].endpoint }) }}"
+  with_items: "{{ groups.all }}"
+  when: >
+    hostvars[item].cluster_name != cluster_name
+
+- name: print target upstreams
+  debug:
+    msg: "upstreams={{ tmp_upstream_hosts }}"
+
+- name: set upstreams
+  set_fact:
+    upstreams: >
+      {{ upstreams|default([]) +
+         [{ 'vhost': item.0, 'to': item.1 ,
+           'params': {
+             'uri': 'amqps://' ~  vhosts[item.0]['rabbitmq_users'][0].user
+                ~ ':' ~  vhosts[item.0]['rabbitmq_users'][0].password
+                ~ '@' ~ tmp_upstream_hosts[item.1]
+                ~ '/' ~ vhosts[item.0].name,
+             'expires': vhosts[item.0].federation_opts.expires|default(3600000),
+             'prefetch-count': vhosts[item.0].federation_opts.prefetch_count|default(100),
+             'reconnect-delay': vhosts[item.0].federation_opts.reconnect_delay|default(1),
+             'ack-mode': vhosts[item.0].federation_opts.ack_mode|default('on-confirm')
+           }
+         }]
+       }}
+  with_nested:
+    - "{{ vhosts }}"
+    - "{{ tmp_upstream_hosts }}"
+  when: >
+    vhosts[item.0].federation|default(false)
+
+- name: print upstreams json
+  debug:
+    msg: "json={{ upstreams|default({}) }}"
+
+- name: create federation upstream
+  rabbitmq_parameter:
+    component: federation-upstream
+    name: "{{ vhosts[item.0].name }}-to-{{ tmp_upstream_hosts[item.1] }}"
+    vhost: "{{ vhosts[item.0].name }}"
+    value: "{{ upstreams[item.1] | to_json }}"
+    node: "rabbit@{{ ansible_hostname }}"
+  with_items: "{{ upstreams }}"
