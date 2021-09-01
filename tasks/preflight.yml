@@ -2,10 +2,10 @@
 
 - name: prefligth | check variables
   fail:
-    msg: "rabbitmq_external_endpoint variable is required if federation enabled."
+    msg: "external_endpoint variable is required if federation enabled."
   when: >
     rabbitmq_federation
-    and rabbitmq_external_endpoint is not defined
+    and hostvars[inventory_hostname][ hostvars[inventory_hostname].rabbitmq_cluster_name ].external_endpoint is not defined
 
 - name: preflight | load vhosts configuration
   include_vars:

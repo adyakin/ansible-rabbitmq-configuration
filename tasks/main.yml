@@ -3,6 +3,10 @@
 - name: pre-flight check
   include: preflight.yml
 
+
+- include: federation.yml
+  when: rabbitmq_federation
+
 - include: vhost.yml
 - include: user.yml
 - include: policy.yml

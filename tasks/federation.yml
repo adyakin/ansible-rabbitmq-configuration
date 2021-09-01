@@ -2,7 +2,7 @@
 
 - name: set target upstreams
   set_fact:
-    tmp_upstream_hosts: "{{ tmp_upstream_hosts|default({}) | combine({ hostvars[item].cluster_name : hostvars[hostvars[item].cluster_name].endpoint }) }}"
+    tmp_upstream_hosts: "{{ tmp_upstream_hosts|default({}) | combine({ hostvars[item].cluster_name : hostvars[hostvars[item].cluster_name].external_endpoint }) }}"
   with_items: "{{ groups.all }}"
   when: >
     hostvars[item].cluster_name != cluster_name
