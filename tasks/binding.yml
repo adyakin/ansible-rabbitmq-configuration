@@ -1,0 +1,17 @@
+---
+
+- name: create bindings
+  rabbitmq_binding:
+    vhost: "{{ item.0.name | default(item.1.vhost) }}"
+    name: "{{ item.1.name }}"
+    destination: "{{ item.1.destination }}"
+    destination_type: "{{ item.1.destination_type }}"
+    routing_key: "{{ item.1.routing_key }}"
+    state: "{{ item.1.state | default('present') }}"
+    login_host: "{{ item.1.login_host | default('localhost') }}"
+    login_port: "{{ item.1.login_port | default(15672) }}"
+    login_user: "{{ item.0.rabbitmq_users[0].user }}"
+    login_password: "{{ item.0.rabbitmq_users[0].password }}"
+  with_nested:
+    - "{{ vhosts }}"
+    - "{{ rabbitmq_bindings }}"

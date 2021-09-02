@@ -1,0 +1,18 @@
+---
+
+- name: create queues
+  rabbitmq_queue:
+    vhost: "{{ item.0.name | default(item.1.vhost) }}"
+    name: "{{ item.1.name }}"
+    state: "{{ item.1.state | default('present') }}"
+    durable: "{{ item.1.durable | default('yes') }}"
+    auto_delete: "{{ item.1.auto_delete | default('no') }}"
+    dead_letter_exchange: "{{ item.1.dead_letter_exchange | default('') }}"
+    dead_letter_routing_key: "{{ item.1.dead_letter_routing_key | default('') }}"
+    login_host: "{{ item.1.login_host | default('localhost') }}"
+    login_port: "{{ item.1.login_port | default(15672) }}"
+    login_user: "{{ item.0.rabbitmq_users[0].user }}"
+    login_password: "{{ item.0.rabbitmq_users[0].password }}"
+  with_nestes:
+    - "{{ vhosts }}"
+    - "{{ rabbitmq_queues }}"
