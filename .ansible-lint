@@ -3,3 +3,4 @@ skip_list:  # or 'skip_list' to silence them completely                         
   - '702'  # Tags must contain lowercase letters and digits only                                              │
   - '701'  # meta/main.yml should contain relevant info                                                       │
   - '703'  # meta/main.yml default values should be changed                                                   │
+  - '204'  # line length
