@@ -20,6 +20,23 @@ Host Variables
 > Корневым елементом обязательно должно быть уникальное имя, в противном случае
 > переменные затрут уже существующую конфигурацию
 
+> Для настройки федерации и создания очередей используется первый определенный 
+> пользователь
+
+| variable | required     | default   | description |
+| :------  | :-----:      | :-----:   | :---------- |
+| `name`    |    X        |    -      | имя vhost   |
+| `state`    |    -       | `present` | состояние   |
+| `tracing`  |    -       |   `no`    | вкл/выкл трассировку |
+| `federation` |  -       |   `no`    | для включения федерации между кластерами |
+| `federation_opts` | -   |  -        | параметры апстрима https://www.rabbitmq.com/federation-reference.html#upstreams. В именах полей `"-"` необходимо заменить на  `"_"` |
+| `rabbitmq_users` |  X   |   -       | список пользователей, возможные параметры - аналогично [community.rabbitmq.rabbitmq_user](https://docs.ansible.com/ansible/latest/collections/community/rabbitmq/rabbitmq_user_module.html#parameters) за исключением блока `permissions` |
+| `rabbitmq_policies` | X  |  -       | политики, применяемые на уровне vhost. параметры: [community.rabbitmq.rabbitmq_policy](https://docs.ansible.com/ansible/latest/collections/community/rabbitmq/rabbitmq_policy_module.html#parameters) |
+| `rabbitmq_exchanges`| X |  -        | параметры очередй, подробно в comminuty.rabbitmq.rabbitmq_exchange |
+| `rabbitmq_queues`| X |  -        | параметры очередй, подробно в comminuty.rabbitmq.rabbitmq_queue |
+| `rabbitmq_bindings`| X |  -        | параметры очередй, подробно в comminuty.rabbitmq.rabbitmq_binding |
+
+Пример описания vhost `vhost-name`:
 
 ```yaml
 vhost-name:
@@ -45,6 +62,20 @@ vhost-name:
         ha-mode: all
         ha-sync-mode: automatic
       state: present
+
+  rabbitmq_exchanges:
+    - name: test-exchange
+      type: direct
+      state: present
+
+  rabbitmq_queues:
+    - name: queue1
+
+  rabbitmq_bindings:
+    - name: test-exchange
+      destination: queue1
+      destination_type: queue
+      routing_key: "#"
 
 ```
 
