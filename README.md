@@ -29,12 +29,22 @@ Host Variables
 | `state`    |    -       | `present` | состояние   |
 | `tracing`  |    -       |   `no`    | вкл/выкл трассировку |
 | `federation` |  -       |   `no`    | для включения федерации между кластерами |
-| `federation_opts` | -   |  -        | параметры апстрима https://www.rabbitmq.com/federation-reference.html#upstreams. В именах полей `"-"` необходимо заменить на  `"_"` |
-| `rabbitmq_users` |  X   |   -       | список пользователей, возможные параметры - аналогично [community.rabbitmq.rabbitmq_user](https://docs.ansible.com/ansible/latest/collections/community/rabbitmq/rabbitmq_user_module.html#parameters) за исключением блока `permissions` |
-| `rabbitmq_policies` | X  |  -       | политики, применяемые на уровне vhost. параметры: [community.rabbitmq.rabbitmq_policy](https://docs.ansible.com/ansible/latest/collections/community/rabbitmq/rabbitmq_policy_module.html#parameters) |
-| `rabbitmq_exchanges`| X |  -        | параметры очередй, подробно в comminuty.rabbitmq.rabbitmq_exchange |
-| `rabbitmq_queues`| X |  -        | параметры очередй, подробно в comminuty.rabbitmq.rabbitmq_queue |
-| `rabbitmq_bindings`| X |  -        | параметры очередй, подробно в comminuty.rabbitmq.rabbitmq_binding |
+| `federation_opts` | -   |  -        | параметры апстрима |
+| `rabbitmq_users` |  X   |   -       | список пользователей |
+| `rabbitmq_policies` | X  |  -       | политики, применяемые на уровне vhost |
+| `rabbitmq_exchanges`| X |  -        | параметры обменов   |
+| `rabbitmq_queues`| X |  -           | параметры очередей  |
+| `rabbitmq_bindings`| X |  -         | параметры биндингов |
+
+Описания полей доступны в документации [Community.Rabbitmq](https://docs.ansible.com/ansible/latest/collections/community/rabbitmq/index.html):
+
+
+- `federation_opts`: параметры апстрима https://www.rabbitmq.com/federation-reference.html#upstreams. В именах полей `"-"` необходимо заменить на  `"_"`
+- `rabbitmq_users`:  [community.rabbitmq.rabbitmq_user](https://docs.ansible.com/ansible/latest/collections/community/rabbitmq/rabbitmq_user_module.html#parameters), **без блока `permissions`**
+- `rabbitmq_policies`: [community.rabbitmq.rabbitmq_policy](https://docs.ansible.com/ansible/latest/collections/community/rabbitmq/rabbitmq_policy_module.html#parameters)
+- `rabbitmq_exchanges`: [community.rabbitmq.rabbitmq_exchange](https://docs.ansible.com/ansible/latest/collections/community/rabbitmq/rabbitmq_exchange_module.html#parameters)
+- `rabbitmq_queues`: [community.rabbitmq.rabbitmq_queue](https://docs.ansible.com/ansible/latest/collections/community/rabbitmq/rabbitmq_queue_module.html#parameters)
+- `rabbitmq_bindings`: [community.rabbitmq.rabbitmq_binding](https://docs.ansible.com/ansible/latest/collections/community/rabbitmq/rabbitmq_binding_module.html#parameters)
 
 Пример описания vhost `vhost-name`:
 
@@ -58,9 +68,11 @@ vhost-name:
   rabbitmq_policies:
     - name: "ha-policy"
       pattern: ".*" # Optional, defaults to ".*"
+      apply_to: "queues" # возможные варианты - all (default), queues, exchanges
       tags: # Optional, defaults to "{}"
         ha-mode: all
         ha-sync-mode: automatic
+        federation-upstream-set: all # необходимо для использования федерации.
       state: present
 
   rabbitmq_exchanges:
@@ -97,6 +109,8 @@ Example Playbook
 ```
 
 Для использования с тем же инвентарем, что и для `ansible-rabbitmq` необходимо добавить создание новой группы - по одному хосту из каждого кластера.
+
+Плейбук: [configuration.yml](./configuration.yml)
 
 ```yaml
 ---
