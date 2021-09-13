@@ -13,6 +13,6 @@
     login_port: "{{ item.1.login_port | default(15672) }}"
     login_user: "{{ item.0.rabbitmq_users[0].user }}"
     login_password: "{{ item.0.rabbitmq_users[0].password }}"
-  with_nestes:
+  with_nested:
     - "{{ vhosts }}"
     - "{{ rabbitmq_queues }}"
